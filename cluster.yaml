@@ -1,0 +1,58 @@
+apiVersion: kops/v1alpha2
+kind: Cluster
+metadata:
+  creationTimestamp: 2019-01-22T16:42:18Z
+  name: kubern.cluster.k8s.local
+spec:
+  api:
+    loadBalancer:
+      type: Public
+  authorization:
+    rbac: {}
+  channel: stable
+  cloudProvider: aws
+  configBase: s3://crm-system-k8s/kubern.cluster.k8s.local
+  etcdClusters:
+  - etcdMembers:
+    - instanceGroup: master-eu-west-1a
+      name: a
+    name: main
+  - etcdMembers:
+    - instanceGroup: master-eu-west-1a
+      name: a
+    name: events
+  iam:
+    allowContainerRegistry: true
+    legacy: false
+  kubelet:
+    anonymousAuth: false
+  kubernetesApiAccess:
+  - 0.0.0.0/0
+  kubernetesVersion: 1.11.6
+  masterPublicName: api.kubern.cluster.k8s.local
+  networkCIDR: 172.20.0.0/16
+  networking:
+    kubenet: {}
+  nonMasqueradeCIDR: 100.64.0.0/10
+  sshAccess:
+  - 0.0.0.0/0
+  subnets:
+  - cidr: 172.20.32.0/19
+    name: eu-west-1a
+    type: Public
+    zone: eu-west-1a
+  topology:
+    dns:
+      type: Public
+    masters: public
+    nodes: public
+  fileAssets:
+    - content: |
+        {
+            "insecure-registries" : ["100.71.71.71:5000"]
+        }
+      name: insecure-registries
+      path: /etc/docker/daemon.json
+      roles:
+      - Master
+      - Node

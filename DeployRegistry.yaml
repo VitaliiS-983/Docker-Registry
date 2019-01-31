@@ -1,0 +1,54 @@
+---
+apiVersion: v1
+kind: Service
+apiVersion: v1
+metadata:
+  name: docker-registry
+spec:
+  clusterIP: "100.71.71.71"
+  selector:
+    app: docker-registry
+  ports:
+  - name: http
+    protocol: TCP
+    port: 5000
+    targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: docker-registry
+  template:
+    metadata:
+      labels:
+        app: docker-registry
+    spec:
+      containers:
+      - name: registry
+        image: registry:2
+        ports:
+        - name: registry-port
+          containerPort: 5000
+        volumeMounts:
+        - mountPath: /var/lib/registry
+          name: images
+      volumes:
+      - name: images
+        persistentVolumeClaim:
+          claimName: registry-pv-claim
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: registry-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
